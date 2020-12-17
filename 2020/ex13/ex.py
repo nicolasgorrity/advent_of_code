@@ -1,4 +1,5 @@
-from itertools import compress, count
+from functools import reduce
+from itertools import compress
 import numpy as np
 from typing import Tuple, Sequence
 
@@ -34,32 +35,34 @@ def ex_a(inputs: Sequence[str]) -> int:
     return best_bus_id * min_waiting_time
 
 
+def find_synchronized_bus_coef(bus_id: int, delay: int, other_id: int, other_delay: int) -> int:
+    k = 0
+    while (other_id * k - other_delay + delay) % bus_id != 0:
+        k += 1
+
+    return int((other_id * k - other_delay + delay) / bus_id)
+
+
+def compute_equivalent_synchronized_bus(bus1: Tuple[int, int], bus2: Tuple[int, int]) -> Tuple[int, int]:
+    bus_id_1, delay_1 = bus1
+    bus_id_2, delay_2 = bus2
+
+    new_bus_id = np.lcm(bus_id_1, bus_id_2)
+
+    bus_coeff_2 = find_synchronized_bus_coef(bus_id_2, delay_2, bus_id_1, delay_1)
+    synchronized_timestamp = bus_id_2 * bus_coeff_2 - delay_2
+
+    return new_bus_id, -synchronized_timestamp
+
+
 def min_timestep_matching_requirements(buses: Sequence[int]) -> int:
     valid_buses = list(map(lambda bus_id: bus_id != -1, buses))
     working_buses = list(compress(buses, valid_buses))
     departure_delays = list(compress(range(len(buses)), valid_buses))
 
-    counts = list(map(lambda bus_id: count(start=1, step=1), working_buses))
-    coeffs = list(map(next, counts))
+    synchronized_bus = reduce(compute_equivalent_synchronized_bus, zip(working_buses, departure_delays))
 
-    while True:
-        potential_t0_list = list(map(lambda coeff, bus_id, delay:
-                                     coeff * bus_id - delay, coeffs,
-                                     working_buses, departure_delays))
-        max_t0 = max(potential_t0_list)
-        do_updates = list(map(lambda potential_t0: potential_t0 != max_t0, potential_t0_list))
-
-        if not any(do_updates):
-            break
-
-        coeffs = list(map(lambda coeff, potential_t0, bus_id, do_update:
-                          coeff + int(np.ceil((max_t0 - potential_t0) / bus_id))
-                          if do_update
-                          else coeff,
-                          coeffs, potential_t0_list, working_buses, do_updates))
-
-    departure_timestep = working_buses[0] * coeffs[0]
-    return departure_timestep
+    return -synchronized_bus[1]
 
 
 def ex_b(inputs: Sequence[str]) -> int:
