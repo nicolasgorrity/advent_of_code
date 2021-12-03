@@ -18,7 +18,7 @@ Each exercise has its own folder. Following commands can be run from this folder
 
 Unit tests can be run:
 ```
-python3 test.py
+pytest test.py
 ```
 Most of the unit tests are inspired from examples given in the exercises outlines.
 
