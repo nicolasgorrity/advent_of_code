@@ -18,6 +18,6 @@ def test_data_ex_b():
     with open(test_file, 'r') as f:
         input_data = [line.strip() for line in f.readlines()]
 
-        result = ex(inputs=input_data, pick_first=False)
+        result = ex(inputs=input_data, include_diagonals=True)
 
-    assert result == 5
+    assert result == 12
