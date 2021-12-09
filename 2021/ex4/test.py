@@ -18,7 +18,6 @@ def test_data_ex_b():
     with open(test_file, 'r') as f:
         input_data = [line.strip() for line in f.readlines()]
 
-        result = ex(inputs=input_data)
+        result = ex(inputs=input_data, pick_first=False)
 
-    assert False
-    assert result == 4512
+    assert result == 1924
