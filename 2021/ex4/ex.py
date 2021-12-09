@@ -1,5 +1,5 @@
 import numpy as np
-from typing import List, Sequence, Tuple, Union
+from typing import List, Sequence, Tuple
 
 
 def parse_inputs(
